@@ -1,0 +1,244 @@
+{
+  "project_info": {
+    "project_number": "234516189357",
+    "firebase_url": "https://podkatproject.firebaseio.com",
+    "project_id": "podkatproject",
+    "storage_bucket": "podkatproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234516189357:android:82e1e5a454b33134",
+        "android_client_info": {
+          "package_name": "com.mannydev.podkat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "234516189357-k1f9mnder9s6a94kmao98o7u29s803q1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mannydev.podkat",
+            "certificate_hash": "e19bd728c8b4ff72a4640ce722dfe8923158fb31"
+          }
+        },
+        {
+          "client_id": "234516189357-p20hueqgnevsg1g5c4ufnpv12shbt2ef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4kp54iq7AA9VehgiHU7nsYG9-eiLbfyU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "234516189357-p20hueqgnevsg1g5c4ufnpv12shbt2ef.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234516189357:android:838e63bf7d6f8804",
+        "android_client_info": {
+          "package_name": "com.mannydev.oskorbleniyaapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "234516189357-lt8etfnhh76r6l8qjge45g087cj3nnrd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mannydev.oskorbleniyaapp",
+            "certificate_hash": "866ad4369991df4f4cc0e93bf48b7607eff1e642"
+          }
+        },
+        {
+          "client_id": "234516189357-rc0do7l5dvrrvhe2kdbhhvnokos498ub.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mannydev.oskorbleniyaapp",
+            "certificate_hash": "d141b8d3379a3260a8876a7e480eccccecc673b2"
+          }
+        },
+        {
+          "client_id": "234516189357-p20hueqgnevsg1g5c4ufnpv12shbt2ef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4kp54iq7AA9VehgiHU7nsYG9-eiLbfyU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "234516189357-p20hueqgnevsg1g5c4ufnpv12shbt2ef.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234516189357:android:b9282d8e1d7ccd3c",
+        "android_client_info": {
+          "package_name": "com.mannydev.alcogenerator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "234516189357-kgp0s3kkgu9dgi28lmuhggg6n29uji6c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mannydev.alcogenerator",
+            "certificate_hash": "a2de44b1d50c30fb0198b5e451040a189233fe0b"
+          }
+        },
+        {
+          "client_id": "234516189357-p20hueqgnevsg1g5c4ufnpv12shbt2ef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4kp54iq7AA9VehgiHU7nsYG9-eiLbfyU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "234516189357-p20hueqgnevsg1g5c4ufnpv12shbt2ef.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234516189357:android:95a32119fe83cb40",
+        "android_client_info": {
+          "package_name": "com.mannydev.jewswisdom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "234516189357-p20hueqgnevsg1g5c4ufnpv12shbt2ef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4kp54iq7AA9VehgiHU7nsYG9-eiLbfyU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234516189357:android:0e570ae97ea421e5",
+        "android_client_info": {
+          "package_name": "com.mannydev.rssalluanews"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "234516189357-p20hueqgnevsg1g5c4ufnpv12shbt2ef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4kp54iq7AA9VehgiHU7nsYG9-eiLbfyU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234516189357:android:50c50be61951a7ae",
+        "android_client_info": {
+          "package_name": "com.mannydev.dailyapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "234516189357-p20hueqgnevsg1g5c4ufnpv12shbt2ef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4kp54iq7AA9VehgiHU7nsYG9-eiLbfyU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

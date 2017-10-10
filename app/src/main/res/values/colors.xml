@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#63b4d7</color>
+    <color name="colorPrimaryDark">#216b8b</color>
+    <color name="colorAccent">#33a6d7</color>
+    <color name="textColor">#f6edd3</color>
+    <color name="textColor1">#ffffff</color>
+    <color name="fon">#154458</color>
+    <color name="kurs_weather_fon">#55889e</color>
+    <color name="today_fon">#216b8b</color>
+    <color name="horo_fon">#216b8b</color>
+</resources>
