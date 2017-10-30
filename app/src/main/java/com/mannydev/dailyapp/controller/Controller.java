@@ -4,14 +4,10 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mannydev.dailyapp.horoscope.Horo;
-import com.mannydev.dailyapp.kursvalut.KursValut;
-import com.mannydev.dailyapp.weather.Weather;
+import com.mannydev.dailyapp.model.horoscope.Horo;
+import com.mannydev.dailyapp.model.weather.Weather;
 
 import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
@@ -21,14 +17,12 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
  */
 
 public class Controller {
-    public static String KEY = "da34a1770ab7804a79a24144a22414d3";
+
     public static final String BASE_WEATHER_URL = "http://api.openweathermap.org/data/2.5/";
     public static final String BASE_HORO_URL = "http://img.ignio.com/";
     public static final String BASE_KURS_URL = "http://openrates.in.ua/";
-    public static final String BASE_ANEKDOT_URL = "http://www.umori.li/api/";
-    private static Retrofit retrofit = null;
-    public static Horo horo;
-    public static Weather weather;
+    public static final String BASE_ANEKDOT_URL = "http://umorili.herokuapp.com/api/";
+    public static final String BASE_MOONDAY_URL = "http://moon-today.com/api/";
 
     public static WeatherAPI getWeatherApi(){
 
@@ -64,17 +58,27 @@ public class Controller {
         return kursValutAPI;
     }
 
-    public static AnekdotAPI getAnekdotApi(){
+    public static AnekdotAPI getAnekdotsAPI(){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_ANEKDOT_URL)
+                .client(new OkHttpClient())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        AnekdotAPI anekdotAPI = retrofit.create(AnekdotAPI.class);
+        return anekdotAPI;
+    }
+
+    public static MoonDayAPI getMoonDayAPI(){
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_ANEKDOT_URL)
+                .baseUrl(BASE_MOONDAY_URL)
                 .client(new OkHttpClient())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
-        AnekdotAPI anekdotAPI = retrofit.create(AnekdotAPI.class);
-        return anekdotAPI;
+        MoonDayAPI moonDayAPI = retrofit.create(MoonDayAPI.class);
+        return moonDayAPI;
     }
 }

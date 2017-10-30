@@ -1,12 +1,10 @@
 package com.mannydev.dailyapp;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -15,38 +13,39 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mannydev.dailyapp.anekdot.Anekdot;
+import com.mannydev.dailyapp.controller.AnekdotAPI;
 import com.mannydev.dailyapp.controller.Controller;
 import com.mannydev.dailyapp.controller.HoroscopeAPI;
 import com.mannydev.dailyapp.controller.KursValutAPI;
+import com.mannydev.dailyapp.controller.MoonDayAPI;
 import com.mannydev.dailyapp.controller.WeatherAPI;
-import com.mannydev.dailyapp.horoscope.Horo;
-import com.mannydev.dailyapp.kursvalut.KursValut;
-import com.mannydev.dailyapp.moonday.MoonDay;
-import com.mannydev.dailyapp.weather.Weather;
-import com.mannydev.dailyapp.weather.WeatherWidget;
+import com.mannydev.dailyapp.model.anekdot.Anekdot;
+import com.mannydev.dailyapp.model.anekdot.Anekdots;
+import com.mannydev.dailyapp.model.horoscope.Horo;
+import com.mannydev.dailyapp.model.kursvalut.KursValut;
+import com.mannydev.dailyapp.model.moonday.MoonDay;
+import com.mannydev.dailyapp.model.weather.Weather;
+import com.mannydev.dailyapp.model.weather.WeatherWidget;
+import com.mannydev.dailyapp.view.AnekdotAdapter;
+import com.mannydev.dailyapp.view.WeatherAdapter;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String TAG = "myLogs";
+    private static final String WEATHER_KEY = "da34a1770ab7804a79a24144a22414d3";
     private static final String APP_CACHE = "cache";
     private static final String USER_NAME = "userName";
     private static final String ZODIAC = "zodiac";
@@ -56,25 +55,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String HOROSCOPE = "horoscope";
     private static final String MOON_DAY = "moonDay";
     private static final String ANEKDOTS = "anekdots";
-    Dialog dialog;
 
     @BindView(R.id.btnSettings)
     Button btnSettings;
     @BindView(R.id.txtHoroscopeTitle)
     TextView txtHoroscopeTitle;
-    private SharedPreferences appCache;
-    private static Weather weather;
-    private static WeatherWidget weatherWidget;
-    private static Horo horo;
-    public static MoonDay moonDay;
-    private static KursValut kursValut;
-    private static ArrayList<Anekdot> listAnekdot;
-    private static String name;
-    private static String city;
-    public static ArrayList<String> moonDaysInfo;
-    static String zodiac;
-
-    private static String MOON_URL = "http://moon-today.com/api/?get=moonday";
     @BindView(R.id.txtHoroscope)
     TextView txtHoroscope;
     @BindView(R.id.lvWeather)
@@ -96,33 +81,51 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.layoutAnekdoti)
     LinearLayout layoutAnekdoti;
 
+    private SharedPreferences appCache;
+    private Weather weather;
+    private WeatherWidget weatherWidget;
+    private Horo horo;
+    private MoonDay moonDay;
+    private KursValut kursValut;
+    private ArrayList<String> moonDaysInfo;
+    private ArrayList<Anekdot>anekdots;
+    private String name;
+    private String city;
+    private String zodiac;
+
+    private InterstitialAd mInterstitialAd;
+    AnekdotAdapter anekdotAdapter;
+    WeatherAdapter weatherAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         ButterKnife.bind(this);
+
+        MobileAds.initialize(getApplicationContext(),
+                "ca-app-pub-8078146669032188~5186526195");
+
+
         appCache = getSharedPreferences(APP_CACHE, MODE_PRIVATE);
-        getMainFromCache();
         initMoonDays();
+
+        anekdotAdapter = new AnekdotAdapter();
+        weatherAdapter = new WeatherAdapter(this);
+        lvWeather.setAdapter(weatherAdapter);
+        lvAnekdoti.setAdapter(anekdotAdapter);
 
 
         if (!appCache.contains(USER_NAME)) {
             Intent intent = new Intent(this, FirstActivity.class);
             startActivity(intent);
         } else {
-            txtHoroscopeTitle.setText(name +", Ваш гороскоп на сегодня:");
+            getMainFromCache();
             getMoonDayFromCache();
-            if (hasConnection(MainActivity.this)) {
-                initComponents();
-            } else {
-                if (!appCache.contains(HOROSCOPE)){
-                    initComponentsFromCache();
-                }
-
-                Toast.makeText(this, "Отсутствует соединение с интернетом", Toast.LENGTH_LONG).show();
+            txtHoroscopeTitle.setText(name +", Ваш гороскоп на сегодня:");
+            initComponents();
             }
-        }
+
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,70 +143,68 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initComponents() {
-        getDate();
-        getWeather(city);
-        getHoroscope();
         getKursValut();
         getMoonDay();
+        getWeather(city);
+        getHoroscope();
         getAnekdots();
 
     }
 
-    private void initComponentsFromCache() {
-        getDate();
-        getWeatherFromCache();
-        getHoroscopeFromCache();
-        getKursValutFromCache();
-        getMoonDayFromCache();
-        getAnekdotsFromCache();
-    }
-
-    private void getDate() {
-        Date currentDate = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM"/*, myDateFormatSymbols*/);
-        SimpleDateFormat dayFormat = new SimpleDateFormat("\nEE");
-        //txtDate.setText(dateFormat.format(currentDate).replace(".","")+dayFormat.format(currentDate));
-
-    }
-
     private void getAnekdots() {
-        AnekdotsLoader anekdotsLoader = new AnekdotsLoader();
-        anekdotsLoader.execute("http://umorili.herokuapp.com/api/get?site=anekdot.ru&name=new+anekdot&num=50");
+        AnekdotAPI anekdotAPI = Controller.getAnekdotsAPI();
+        anekdotAPI.getAnekdots().enqueue(new Callback<ArrayList<Anekdot>>() {
+            @Override
+            public void onResponse(Call<ArrayList<Anekdot>> call, Response<ArrayList<Anekdot>> response) {
+                anekdots = response.body();
+                if(response.isSuccessful()){
+                    Anekdots jokes = new Anekdots();
+                    jokes.setList(anekdots);
+                    objectToCache(jokes, ANEKDOTS);
+                    anekdotAdapter.setData(anekdots);
+                    anekdotAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<Anekdot>> call, Throwable t) {
+                getAnekdotsFromCache();
+            }
+        });
     }
 
     private void getAnekdotsFromCache() {
-        String s = appCache.getString(ANEKDOTS, null);
-        listAnekdot = new ArrayList<>();
-        try {
-            JSONArray array = new JSONArray(s);
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                Log.v("MyLogs", "" + i);
-                String string = obj.toString();
-                GsonBuilder builder = new GsonBuilder();
-                Gson gson = builder.create();
-                Anekdot anekdot = gson.fromJson(string, Anekdot.class);
-                listAnekdot.add(anekdot);
-            }
-            AnekdotAdapter anekdotAdapter = new AnekdotAdapter(MainActivity.this, listAnekdot);
-            lvAnekdoti.setAdapter(anekdotAdapter);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        Anekdots jokes = gson.fromJson(appCache.getString(ANEKDOTS, null), Anekdots.class);
+        anekdots = jokes.getList();
+        anekdotAdapter.setData(anekdots);
+        anekdotAdapter.notifyDataSetChanged();
     }
 
     private void getMoonDay() {
-        MoonDayLoader moonDayLoader = new MoonDayLoader();
-        moonDayLoader.execute(MOON_URL);
+        MoonDayAPI moonDayAPI = Controller.getMoonDayAPI();
+        moonDayAPI.getMoonDay().enqueue(new Callback<MoonDay>() {
+            @Override
+            public void onResponse(Call<MoonDay> call, Response<MoonDay> response) {
+                moonDay = response.body();
+                if(response.isSuccessful()){
+                    Log.d(TAG,"Moon Day is :"+ moonDay.getMoonday());
+                    objectToCache(moonDay, MOON_DAY);
+                }
+            }
+            @Override
+            public void onFailure(Call<MoonDay> call, Throwable t) {
+                getMoonDayFromCache();
+            }
+        });
+
     }
 
     private void getMoonDayFromCache() {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
         moonDay = gson.fromJson(appCache.getString(MOON_DAY, null), MoonDay.class);
-        //btnMoonDay.setText(moonDay.getMoonday().toString() + "\nЛунный\nдень");
     }
 
     private void getHoroscope() {
@@ -212,10 +213,11 @@ public class MainActivity extends AppCompatActivity {
         horoscopeApi.getHoro().enqueue(new Callback<Horo>() {
             @Override
             public void onResponse(Call<Horo> call, Response<Horo> response) {
-                horo = response.body();
-                objectToCache(horo, HOROSCOPE);
-                if (response.isSuccessful()) {
 
+                horo = response.body();
+
+                if (response.isSuccessful()) {
+                    objectToCache(horo, HOROSCOPE);
                     switch (zodiac) {
                         case "Овен":
                             txtHoroscope.setText(horo.getAries().getToday().replace("\n", ""));
@@ -260,8 +262,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Horo> call, Throwable t) {
-                Log.v("myLogs", "onResponseHoro");
-                Log.v("myLogs", t.toString());
+                getHoroscopeFromCache();
             }
         });
 
@@ -315,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
     private void getWeather(String cityName) {
         WeatherAPI weatherAPI = Controller.getWeatherApi();
         weather = new Weather();
-        weatherAPI.getWeather(cityName, "metric", Controller.KEY).enqueue(new Callback<Weather>() {
+        weatherAPI.getWeather(cityName, "metric", WEATHER_KEY).enqueue(new Callback<Weather>() {
 
             @Override
             public void onResponse(Call<Weather> call, Response<Weather> response) {
@@ -323,32 +324,24 @@ public class MainActivity extends AppCompatActivity {
                 weather = response.body();
                 if (response.isSuccessful()) {
                     String temp = "" + Math.round(weather.getMain().getTemp()) + "°";
-                    String wind = "Ветер : " + String.valueOf(weather.getWind().getSpeed()) + " м/с";
-                    String pressure = "Давление : " + String.valueOf(weather.getMain().getPressure()) + " hpa";
-                    String aqua = "Влажность : " + String.valueOf(weather.getMain().getHumidity()) + " %";
+                    String wind = "Вет. : " + String.valueOf(weather.getWind().getSpeed()) + " м/с";
+                    String pressure = "Давл. : " + String.valueOf(weather.getMain().getPressure()) + " hpa";
+                    String aqua = "Влажн. : " + String.valueOf(weather.getMain().getHumidity()) + " %";
                     String city = weather.getName() + ", " + weather.getSys().getCountry();
+                    String icon = weather.getWeather().get(0).getIcon();
                     Log.v("CITY", city);
-                    weatherWidget = new WeatherWidget();
-                    weatherWidget.setTemp(temp);
-                    weatherWidget.setWind(wind);
-                    weatherWidget.setPressure(pressure);
-                    weatherWidget.setAqua(aqua);
-                    weatherWidget.setCity(city);
-                    weatherWidget.setIcon(weather.getWeather().get(0).getIcon());
+                    weatherWidget = new WeatherWidget(temp,wind,pressure,aqua,icon,city);
                     objectToCache(weatherWidget, WEATHER);
                     ArrayList<WeatherWidget> list = new ArrayList<WeatherWidget>();
                     list.add(weatherWidget);
-                    WeatherAdapter weatherAdapter = new WeatherAdapter(MainActivity.this, list);
-                    lvWeather.setAdapter(weatherAdapter);
-
+                    weatherAdapter.setData(list,moonDay,moonDaysInfo.get(moonDay.getMoonday()-1));
+                    weatherAdapter.notifyDataSetChanged();
                 }
-
-
             }
 
             @Override
             public void onFailure(Call<Weather> call, Throwable t) {
-
+                getWeatherFromCache();
             }
         });
     }
@@ -359,8 +352,8 @@ public class MainActivity extends AppCompatActivity {
         weatherWidget = gson.fromJson(appCache.getString(WEATHER, null), WeatherWidget.class);
         ArrayList<WeatherWidget> list = new ArrayList<WeatherWidget>();
         list.add(weatherWidget);
-        WeatherAdapter weatherAdapter = new WeatherAdapter(MainActivity.this, list);
-        lvWeather.setAdapter(weatherAdapter);
+        weatherAdapter.setData(list,moonDay,moonDaysInfo.get(moonDay.getMoonday()-1));
+        weatherAdapter.notifyDataSetChanged();
     }
 
     public void getKursValut() {
@@ -369,8 +362,6 @@ public class MainActivity extends AppCompatActivity {
         kursValutAPI.getKurs().enqueue(new Callback<KursValut>() {
             @Override
             public void onResponse(Call<KursValut> call, Response<KursValut> response) {
-                Log.v("myLogs", "onResponse");
-                Log.v("myLogs", response.toString());
                 kursValut = response.body();
                 if (response.isSuccessful()) {
                     objectToCache(kursValut, KURS_VALUT);
@@ -378,13 +369,11 @@ public class MainActivity extends AppCompatActivity {
                     txtRUB.setText(txtRUB.getText() + "\n" + kursValut.getRUB().getNbu().getBuy());
                     txtEUR.setText(txtEUR.getText() + "\n" + kursValut.getEUR().getNbu().getBuy());
                 }
-
             }
 
             @Override
             public void onFailure(Call<KursValut> call, Throwable t) {
-                Log.v("myLogs", "onFailure");
-                Log.v("myLogs", t.toString());
+                getKursValutFromCache();
             }
         });
     }
@@ -399,96 +388,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void objectToCache(Object object, String label) {
-
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
         String s = gson.toJson(object);
-        Log.v("JSONS", s);
         SharedPreferences.Editor editor = appCache.edit();
         editor.putString(label, s);
         editor.apply();
-
-    }
-
-
-    public class MoonDayLoader extends AsyncTask<String, Void, String> {
-
-        OkHttpClient client = new OkHttpClient();
-
-        @Override
-        protected String doInBackground(String... params) {
-
-            Request.Builder builder = new Request.Builder();
-            builder.url(params[0]);
-            Request request = builder.build();
-
-            try {
-                okhttp3.Response response = client.newCall(request).execute();
-                return response.body().string();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            GsonBuilder builder = new GsonBuilder();
-            Gson gson = builder.create();
-            moonDay = gson.fromJson(s, MoonDay.class);
-            //btnMoonDay.setText(moonDay.getMoonday().toString()+"\nЛунный\nдень");
-            objectToCache(moonDay, MOON_DAY);
-        }
-    }
-
-    public class AnekdotsLoader extends AsyncTask<String, Void, String> {
-
-        OkHttpClient client = new OkHttpClient();
-
-        @Override
-        protected String doInBackground(String... params) {
-
-            Request.Builder builder = new Request.Builder();
-            builder.url(params[0]);
-            Request request = builder.build();
-
-            try {
-                okhttp3.Response response = client.newCall(request).execute();
-                return response.body().string();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Log.v("MyLogs", s);
-            SharedPreferences.Editor editor = appCache.edit();
-            editor.putString(ANEKDOTS, s);
-            editor.apply();
-            listAnekdot = new ArrayList<>();
-            try {
-                JSONArray array = new JSONArray(s);
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject obj = array.getJSONObject(i);
-                    Log.v("MyLogs", "" + i);
-                    String string = obj.toString();
-                    GsonBuilder builder = new GsonBuilder();
-                    Gson gson = builder.create();
-                    Anekdot anekdot = gson.fromJson(string, Anekdot.class);
-                    listAnekdot.add(anekdot);
-                }
-                AnekdotAdapter anekdotAdapter = new AnekdotAdapter(MainActivity.this, listAnekdot);
-                lvAnekdoti.setAdapter(anekdotAdapter);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
     }
 
     //Проверка устройства на наличия связи с интернетом
@@ -540,4 +445,6 @@ public class MainActivity extends AppCompatActivity {
         moonDaysInfo.add("Cегодня 30 лунный день бывает не в каждом месяце, а если и бывает, то длится недолго, иногда даже меньше часа. Несмотря на это, это отдельный лунный день, который несет в себе особую энергетику. Это время хорошо наполнить творчеством и провести его в одиночестве. Лунный месяц закончился, теперь нужно набираться сил для свершений в новый лунный месяц.");
 
     }
+
+
 }

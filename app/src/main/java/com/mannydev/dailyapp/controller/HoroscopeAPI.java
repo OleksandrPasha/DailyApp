@@ -1,15 +1,10 @@
 package com.mannydev.dailyapp.controller;
 
-import com.mannydev.dailyapp.horoscope.Horo;
-
-
-import java.util.List;
+import com.mannydev.dailyapp.model.horoscope.Horo;
 
 
 import retrofit2.Call;
 import retrofit2.http.GET;
-
-
 
 public interface HoroscopeAPI {
 
